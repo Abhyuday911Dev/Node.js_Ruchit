@@ -1,8 +1,9 @@
 var express = require("express");
 var router = express.Router();
-const User = require("./userModel");
+const UserModel = require("./userModel");
 
-/* GET home page. */
+/* GET home */
+
 router.get("/", function (req, res, next) {
   res.render("homepage", { title: "Ruchit", age: "22", gf: "null" });
 });
@@ -13,32 +14,35 @@ router.get("/register", function (req, res, next) {
 });
 
 /* post register user. */
-router.post("/register", async function (req, res, next) {
+router.post("/register", function (req, res, next) {
   // console.log(req.body.name);
   // console.log(req.body.age);
 
-  const createUser = await new User(req.body).save();
-
-  res.json(createUser);
+  UserModel.create(req.body).then(function (createUser) {
+    res.json(createUser);
+  });
 });
 
-router.get("/login", async function (req, res, next) {
+router.get("/login", function (req, res, next) {
   res.render("login");
-
-  // const foundUser=  await User.find({name:"ruchit"})
-  // res
 });
 
 router.post("/login", function (req, res, next) {
-  // console.log(req.body.name);
-  // console.log(req.body.age);
+  // apan phele khoj rahe hai on the basics of some unique value
+  // might be username or Phone num or aadhar card num
 
-  // dtabase me kuch checking hui fir user mila ya nahi mila
-  user = true;
-  // dtabase me kuch checking hui fir user mila ya nahi mila
+  UserModel.findOne({ name: req.body.name }).then(function (user) {
+    // ab apan uska password mila ke check krkenge ki
+    // db me jo save haiuser kyauska password milraha hai abhi jo form me fill kiya hai usse
 
-  if (!user) res.redirect("/login");
-  res.render("profile", { name: req.body.name, age: req.body.age });
+    // check if password from form  === pass saved in db
+    if (req.body.age == user.age) {
+      res.render("profile", { user });
+    } else {
+      console.log(user, typeof(req.body.age))
+      res.json("bhag yaha se kudh ka age yad nahi hai");
+    }
+  });
 });
 
 module.exports = router;
